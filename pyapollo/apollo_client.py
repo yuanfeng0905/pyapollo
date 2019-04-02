@@ -37,6 +37,7 @@ class ApolloClient(object):
         self.auto_failover = auto_failover
         self._stopping = False
         self._cache = {}
+        self._cache_file = {}
         self._notification_map = {}
         # 支持注册指定的命名空间
         for ns in notify_namespaces:
@@ -83,6 +84,9 @@ class ApolloClient(object):
     def get_conf_file(self, namespace='app.yaml', auto_failover=True):
         """ 获取指定namespace的配置文件，非properities格式 """
 
+        if namespace in self._cache_file:
+            return self._cache_file[namespace]
+
         # 非properities格式的配置(yaml|json)，存储在content字段中
         value = self.get_value(
             'content',
@@ -97,7 +101,9 @@ class ApolloClient(object):
         if self.auto_failover and auto_failover:
             self._save_conf_to_disk(namespace, value)
 
-        return self._loads(namespace, value)    
+        # cache to local
+        self._cached_file[namespace] = self._loads(namespace, value)
+        return self._cache_file[namespace]
 
     def _save_conf_to_disk(self, namespace, data):
         """ 本地磁盘容错 """
@@ -164,6 +170,10 @@ class ApolloClient(object):
         if r.ok:
             data = r.json()
             self._cache[namespace] = data
+            try:
+                self._cache_file.pop(namespace)
+            except KeyError:
+                pass
             LOGGER.info('Updated local cache for namespace %s', namespace)
         else:
             data = self._cache[namespace]
@@ -181,6 +191,10 @@ class ApolloClient(object):
         if r.status_code == 200:
             data = r.json()
             self._cache[namespace] = data['configurations']
+            try:
+                self._cache_file.pop(namespace)
+            except KeyError:
+                pass
             LOGGER.info(
                 'Updated local cache for namespace %s release key %s: %s',
                 namespace, data['releaseKey'], repr(self._cache[namespace]))
