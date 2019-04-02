@@ -102,7 +102,7 @@ class ApolloClient(object):
             self._save_conf_to_disk(namespace, value)
 
         # cache to local
-        self._cached_file[namespace] = self._loads(namespace, value)
+        self._cache_file[namespace] = self._loads(namespace, value)
         return self._cache_file[namespace]
 
     def _save_conf_to_disk(self, namespace, data):
