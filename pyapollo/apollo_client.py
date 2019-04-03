@@ -21,7 +21,7 @@ class ApolloClient(object):
                  ip=None,
                  auto_failover=True,
                  conf_dir=None,
-                 notify_namespaces=['application']):
+                 notify_namespaces=None):
         self.config_server_url = config_server_url
         self.appId = app_id
         self.cluster = cluster
@@ -40,6 +40,8 @@ class ApolloClient(object):
         self._cache_file = {}
         self._notification_map = {}
         # 支持注册指定的命名空间
+        if notify_namespaces is None:
+            notify_namespaces = ['application']
         for ns in notify_namespaces:
             self._notification_map[ns] = -1
 
