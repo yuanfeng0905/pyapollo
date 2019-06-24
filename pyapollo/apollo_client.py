@@ -197,9 +197,7 @@ class ApolloClient(object):
                 self._cache_file.pop(namespace)
             except KeyError:
                 pass
-            LOGGER.info(
-                'Updated local cache for namespace %s release key %s: %s',
-                namespace, data['releaseKey'], repr(self._cache[namespace]))
+            LOGGER.info('Updated local cache for namespace %s ', namespace)
 
     def _signal_handler(self, signal, frame):
         LOGGER.info('You pressed Ctrl+C!')
